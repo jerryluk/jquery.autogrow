@@ -1,0 +1,15 @@
+Auto-grow TextArea
+
+It provides Facebook-like auto-grow/auto-expand/auto-resizing text area.
+
+Required jQuery 1.4+
+
+Options
+expandTolerance : Number of extra lines in the text area. Default is 1.
+minHeight: Minimum height of the text area in pixel. If not specified, it will try to get it from the min-height CSS style. Default: 0
+maxHeight: Maximum height of the text area in pixel. If not specified, it will try to get it from the max-height CSS style. Default: 99999
+
+Examples
+$('form textarea').autogrow();
+
+Special thanks to Craig Buckler who provided an excellent tutorial of how to write the plugin.
