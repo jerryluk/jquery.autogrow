@@ -14,7 +14,8 @@
 (function($) {
   $.fn.autogrow = function(options) {
     var defaults = {
-      expandTolerance: 1
+      expandTolerance: 1,
+      enterToSubmit: false
     };
     options = $.extend(defaults, options);
     
@@ -64,12 +65,20 @@
         $this.css("padding-top", 0).css("padding-bottom", 0);
         $this.bind("keyup", resize).bind("focus", resize);
         $this.data("autogrow-initialized", true);
-      }
+        if (options.enterToSubmit) {
+          $this.keydown(function(event) {
+            if (event.keyCode == 13) {
+              $($(this).parents('form').get(0)).submit();
+              event.preventDefault();
+            }
+          });
+        }
       
-      initElement($this);
-      // Sometimes the CSS attributes are not yet there so the above computation might be wrong
-      // 100ms delay will do the job
-      setTimeout(function() { initElement($this); }, 100);
+        initElement($this);
+        // Sometimes the CSS attributes are not yet there so the above computation might be wrong
+        // 100ms delay will do the job
+        setTimeout(function() { initElement($this); }, 100);
+      }
     });
     
     return this;
