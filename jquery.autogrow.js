@@ -58,6 +58,18 @@
       resize($e);
     };
     
+    function getSelectedText()
+    {
+      if (window.getSelection) {
+        return window.getSelection().toString();
+      } else if (document.getSelection) {
+        return document.getSelection().toString();
+      } else if (document.selection){
+        return document.selection.createRange().text;
+      }
+      return "";
+    }
+    
     this.each(function() {
       var $this = $(this);
             
@@ -65,14 +77,22 @@
         $this.css("padding-top", 0).css("padding-bottom", 0);
         $this.bind("keyup", resize).bind("focus", resize);
         $this.data("autogrow-initialized", true);
-        if (options.enterToSubmit) {
-          $this.keydown(function(event) {
-            if (event.keyCode == 13) {
+        $this.keydown(function(event) {
+          if (event.keyCode == 13) {
+            if (options.enterToSubmit) {
               $($(this).parents('form').get(0)).submit();
               event.preventDefault();
+            } else if (getSelectedText() == "") {
+              // Prepend an extra line to prevent flickering
+              var $e = $(event.target || event),
+                  origVal = $e.val();
+              $e.val(origVal + "\n");
+              resize($e);
+              $e.val(origVal);
             }
-          });
-        }
+          }
+        });
+        
       
         initElement($this);
         // Sometimes the CSS attributes are not yet there so the above computation might be wrong
