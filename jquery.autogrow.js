@@ -22,10 +22,12 @@
     // IE and Opera should never set a textarea height of 0px
     var hCheck = !($.browser.msie || $.browser.opera);
     
-    function resize(e) {
+    function resize(e, opts) {
       var $e            = $(e.target || e), // event or element
           contentLength = $e.val().length,
           elementWidth  = $e.innerWidth();
+      
+      opts = opts || { };
       
       if (contentLength != $e.data("autogrow-length") || elementWidth != $e.data("autogrow-width")) {
         
@@ -35,8 +37,9 @@
           $e.css("height", "0px");
         }
         
+        var extraLines = opts.extraLines ? opts.extraLines : 0;
         var height = Math.max($e.data("autogrow-min"), Math.ceil(Math.min(
-          $e.attr("scrollHeight") + options.expandTolerance * $e.data("autogrow-line-height"), 
+          $e.attr("scrollHeight") + (options.expandTolerance + extraLines) * $e.data("autogrow-line-height"), 
           $e.data("autogrow-max"))));
 
         $e.css("overflow", ($e.attr("scrollHeight") > height ? "auto" : "hidden"));
@@ -84,11 +87,8 @@
               event.preventDefault();
             } else if (getSelectedText() == "") {
               // Prepend an extra line to prevent flickering
-              var $e = $(event.target || event),
-                  origVal = $e.val();
-              $e.val(origVal + "\n");
-              resize($e);
-              $e.val(origVal);
+              var $e = $(event.target || event);
+              resize($e, { extraLines: 1 });
             }
           }
         });

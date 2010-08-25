@@ -8,6 +8,7 @@ Options
 expandTolerance : Number of extra lines in the text area. Default is 1.
 minHeight: Minimum height of the text area in pixel. If not specified, it will try to get it from the min-height CSS style. Default: 0
 maxHeight: Maximum height of the text area in pixel. If not specified, it will try to get it from the max-height CSS style. Default: 99999
+enterToSubmit: Submit the form with enter key. Default: false
 
 Examples
 $('form textarea').autogrow();
