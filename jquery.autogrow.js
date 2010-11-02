@@ -15,12 +15,13 @@
   $.fn.autogrow = function(options) {
     var defaults = {
       expandTolerance: 1,
-      enterToSubmit: false
+      enterToSubmit: false,
+      autoCollapse: true /* false to have better performance */
     };
     options = $.extend(defaults, options);
     
     // IE and Opera should never set a textarea height of 0px
-    var hCheck = !($.browser.msie || $.browser.opera);
+    var hCheck = !($.browser.msie || $.browser.opera) && options.autoCollapse;
     
     function resize(e, opts) {
       var $e            = $(e.target || e), // event or element
