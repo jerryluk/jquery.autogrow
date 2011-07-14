@@ -15,36 +15,41 @@
   $.fn.autogrow = function(options) {
     var defaults = {
       expandTolerance: 1,
-      enterToSubmit: false,
-      autoCollapse: true /* false to have better performance */
+      heightKeeperFunction: null
     };
     options = $.extend(defaults, options);
     
     // IE and Opera should never set a textarea height of 0px
-    var hCheck = !($.browser.msie || $.browser.opera) && options.autoCollapse;
+    var hCheck = !($.browser.msie || $.browser.opera);
     
-    function resize(e, opts) {
+    function resize(e) {
       var $e            = $(e.target || e), // event or element
           contentLength = $e.val().length,
           elementWidth  = $e.innerWidth();
-      
-      opts = opts || { };
-      
+      if ($e.is(":hidden")) {
+        // Do not do anything if the element is hidden as we cannot determine the height correctly
+        return $e;
+      }
       if (contentLength != $e.data("autogrow-length") || elementWidth != $e.data("autogrow-width")) {
         
         // For non-IE and Opera browser, it requires setting the height to 0px to compute the right height
         if (hCheck && (contentLength < $e.data("autogrow-length") || 
           elementWidth != $e.data("autogrow-width"))) {
+          if ($.isFunction(options.heightKeeperFunction)) {
+            (options.heightKeeperFunction($e)).height((options.heightKeeperFunction($e)).height());
+          }
           $e.css("height", "0px");
         }
         
-        var extraLines = opts.extraLines ? opts.extraLines : 0;
         var height = Math.max($e.data("autogrow-min"), Math.ceil(Math.min(
-          $e.attr("scrollHeight") + (options.expandTolerance + extraLines) * $e.data("autogrow-line-height"), 
+          $e.prop("scrollHeight") + options.expandTolerance * $e.data("autogrow-line-height"), 
           $e.data("autogrow-max"))));
 
-        $e.css("overflow", ($e.attr("scrollHeight") > height ? "auto" : "hidden"));
+        $e.css("overflow", ($e.prop("scrollHeight") > height ? "auto" : "hidden"));
         $e.css("height", height + "px");
+        if ($.isFunction(options.heightKeeperFunction)) {
+          (options.heightKeeperFunction($e)).css({ height: 'auto' });
+        }
       }
       
       return $e;
@@ -62,18 +67,6 @@
       resize($e);
     };
     
-    function getSelectedText()
-    {
-      if (window.getSelection) {
-        return window.getSelection().toString();
-      } else if (document.getSelection) {
-        return document.getSelection().toString();
-      } else if (document.selection){
-        return document.selection.createRange().text;
-      }
-      return "";
-    }
-    
     this.each(function() {
       var $this = $(this);
             
@@ -81,25 +74,12 @@
         $this.css("padding-top", 0).css("padding-bottom", 0);
         $this.bind("keyup", resize).bind("focus", resize);
         $this.data("autogrow-initialized", true);
-        $this.keydown(function(event) {
-          if (event.keyCode == 13) {
-            if (options.enterToSubmit) {
-              $($(this).parents('form').get(0)).submit();
-              event.preventDefault();
-            } else if (getSelectedText() == "") {
-              // Prepend an extra line to prevent flickering
-              var $e = $(event.target || event);
-              resize($e, { extraLines: 1 });
-            }
-          }
-        });
-        
-      
-        initElement($this);
-        // Sometimes the CSS attributes are not yet there so the above computation might be wrong
-        // 100ms delay will do the job
-        setTimeout(function() { initElement($this); }, 100);
       }
+      
+      initElement($this);
+      // Sometimes the CSS attributes are not yet there so the above computation might be wrong
+      // 100ms delay will do the job
+      setTimeout(function() { initElement($this); }, 100);
     });
     
     return this;
